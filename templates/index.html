@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube TV Guide</title>
+    <link rel="stylesheet" href="/static/css/theme1.css" id="themeStylesheet">
+    <link rel="stylesheet" href="/static/css/modal.css">
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube TV Guide</h1>
+        <div class="theme-switcher">
+            <button onclick="switchTheme('theme1.css')">Classic Guide</button>
+            <button onclick="switchTheme('theme2.css')">Night Mode</button>
+            <button onclick="switchTheme('theme3.css')">Retro Guide</button>
+        </div>
+        
+        <div class="time-bar">
+            <div class="current-time">{{ current_time }}</div>
+            <div class="channel-info">Channel Guide</div>
+        </div>
+        
+        <div class="guide-container">
+            <div class="channel-numbers">
+                {% for channel in channels %}
+                <div class="channel-number">{{ channel.stationId }}</div>
+                {% endfor %}
+            </div>
+            
+            <div class="guide-content">
+                {% for channel in channels %}
+                <div class="guide-row">
+                    <div class="channel-info">
+                        <div class="channel-name">{{ channel.name }}</div>
+                        <div class="display-option">{{ channel.displayOption|title }}</div>
+                    </div>
+                    <div class="program-grid">
+                        {% if channel.videos %}
+                            {% for video in channel.videos %}
+                            <div class="program" onclick="playVideo('{{ video.id }}', '{{ video.title|replace('\'', '\\\'')|replace('\n', ' ')|replace('\r', ' ') }}')">
+                                <div class="program-thumbnail">
+                                    <img src="{{ video.thumbnail }}" alt="{{ video.title }}">
+                                    <div class="play-icon">▶</div>
+                                </div>
+                                <div class="program-info">
+                                    <div class="program-title">{{ video.title }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="program no-content">
+                                <p>No videos available</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="guide-footer">
+            <div class="footer-buttons">
+                <button onclick="location.href='/manage'">Manage Channels</button>
+            </div>
+            <div class="footer-info">
+                Press SELECT to view • Press MENU for options
+            </div>
+        </div>
+    </div>
+    
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeVideoModal()">&times;</span>
+            <div class="video-container">
+                <iframe id="videoPlayer" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="video-info">
+                <div id="videoTitle" class="video-title"></div>
+            </div>
+            <div class="video-controls">
+                <button class="control-btn" onclick="openInYouTube()">Open in YouTube</button>
+                <button class="control-btn" onclick="closeVideoModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/index.js"></script>
+</body>
+</html>

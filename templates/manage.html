@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage YouTube Channels</title>
+    <link rel="stylesheet" href="/static/css/theme1.css" id="themeStylesheet">
+    <link rel="stylesheet" href="/static/css/manage.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Manage YouTube TV Guide</h1>
+        <div class="theme-switcher">
+            <button onclick="switchTheme('theme1.css')">Classic Guide</button>
+            <button onclick="switchTheme('theme2.css')">Night Mode</button>
+            <button onclick="switchTheme('theme3.css')">Retro Guide</button>
+        </div>
+        
+        <div class="manage-container">
+            <button class="back-btn" onclick="location.href='/'">Back to TV Guide</button>
+            
+            <div class="section">
+                <h2>Current Channels</h2>
+                <table id="channels-table">
+                    <thead>
+                        <tr>
+                            <th>Station ID</th>
+                            <th>Name</th>
+                            <th>Display Option</th>
+                            <th>YouTube Links</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="channels-tbody">
+                        <!-- Channels will be loaded here via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>Add New Channel</h2>
+                <form id="add-channel-form">
+                    <div class="form-group">
+                        <label for="channel-name">Channel Name:</label>
+                        <input type="text" id="channel-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="station-id">Station ID:</label>
+                        <input type="number" id="station-id" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="display-option">Display Option:</label>
+                        <select id="display-option" required>
+                            <option value="random">Random</option>
+                            <option value="popular">Popular</option>
+                            <option value="new">New</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>YouTube Channel Links:</label>
+                        <div id="youtube-links">
+                            <div class="link-container">
+                                <input type="text" class="youtube-link" placeholder="https://www.youtube.com/channel/..." required>
+                                <button type="button" class="remove-link-btn">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-link-btn" id="add-link-btn">+ Add Another Link</button>
+                    </div>
+                    
+                    <button type="submit">Add Channel</button>
+                </form>
+            </div>
+            
+            <!-- Edit Channel Form (Hidden initially) -->
+            <div class="section" id="edit-section" style="display: none;">
+                <h2>Edit Channel</h2>
+                <form id="edit-channel-form">
+                    <input type="hidden" id="edit-channel-id">
+                    <div class="form-group">
+                        <label for="edit-channel-name">Channel Name:</label>
+                        <input type="text" id="edit-channel-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-station-id">Station ID:</label>
+                        <input type="number" id="edit-station-id" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-display-option">Display Option:</label>
+                        <select id="edit-display-option" required>
+                            <option value="random">Random</option>
+                            <option value="popular">Popular</option>
+                            <option value="new">New</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>YouTube Channel Links:</label>
+                        <div id="edit-youtube-links">
+                            <!-- Edit links will be added here via JavaScript -->
+                        </div>
+                        <button type="button" class="add-link-btn" id="edit-add-link-btn">+ Add Another Link</button>
+                    </div>
+                    
+                    <button type="submit">Update Channel</button>
+                    <button type="button" id="cancel-edit-btn">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/manage.js"></script>
+</body>
+</html>

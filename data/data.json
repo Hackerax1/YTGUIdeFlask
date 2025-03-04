@@ -1,0 +1,32 @@
+[
+    {
+        "id": "1",
+        "name": "Tech Reviews",
+        "stationId": 205,
+        "displayOption": "popular",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UCXGgrKt94gR6lmN4aN3mYTg",
+            "https://www.youtube.com/channel/UCBJycsmduvYEL83R_U4JriQ"
+        ]
+    },
+    {
+        "id": "2",
+        "name": "Gaming Zone",
+        "stationId": 210,
+        "displayOption": "new",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UCYzPXprvl5Y-Sf0g4vX-m6g",
+            "https://www.youtube.com/channel/UCKy1dAqELo0zrOtPkf0eTMw"
+        ]
+    },
+    {
+        "id": "3",
+        "name": "Random Fun",
+        "stationId": 215,
+        "displayOption": "random",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw",
+            "https://www.youtube.com/channel/UCY1kMZp36IQSyNx_9h4mpCg"
+        ]
+    }
+]
