@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.youtube.com; img-src 'self' https: data:; frame-src https://www.youtube.com;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>YouTube TV Guide</title>
     <link rel="stylesheet" href="/static/css/theme1.css" id="themeStylesheet">
     <link rel="stylesheet" href="/static/css/modal.css">
@@ -11,14 +14,25 @@
     <div class="container">
         <h1>YouTube TV Guide</h1>
         <div class="theme-switcher">
-            <button onclick="switchTheme('theme1.css')">Classic Guide</button>
-            <button onclick="switchTheme('theme2.css')">Night Mode</button>
-            <button onclick="switchTheme('theme3.css')">Retro Guide</button>
+            <button onclick="switchTheme('/static/css/theme1.css')">Classic Guide</button>
+            <button onclick="switchTheme('/static/css/theme2.css')">Night Mode</button>
+            <button onclick="switchTheme('/static/css/theme3.css')">Retro Guide</button>
         </div>
         
         <div class="time-bar">
             <div class="current-time">{{ current_time }}</div>
-            <div class="channel-info">Channel Guide</div>
+            <div class="timeline">
+                <div class="play-head" id="playHead"></div>
+                <div class="time-markers">
+                    {% for i in range(3) %}
+                        {% set minutes = now.minute + (i * 30) %}
+                        {% set hours = now.hour + (minutes // 60) %}
+                        {% set adjusted_minutes = minutes % 60 %}
+                        {% set display_time = now.replace(hour=hours % 24, minute=adjusted_minutes) %}
+                        <div class="time-marker">{{ display_time.strftime('%I:%M %p') }}</div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
         
         <div class="guide-container">
@@ -35,21 +49,26 @@
                         <div class="channel-name">{{ channel.name }}</div>
                         <div class="display-option">{{ channel.displayOption|title }}</div>
                     </div>
-                    <div class="program-grid">
+                    <div class="program-grid" role="grid">
                         {% if channel.videos %}
-                            {% for video in channel.videos %}
-                            <div class="program" onclick="playVideo('{{ video.id }}', '{{ video.title|replace('\'', '\\\'')|replace('\n', ' ')|replace('\r', ' ') }}')">
-                                <div class="program-thumbnail">
-                                    <img src="{{ video.thumbnail }}" alt="{{ video.title }}">
-                                    <div class="play-icon">▶</div>
-                                </div>
+                            {% set row_loop = loop %}
+                            {% for video in channel.videos[:3] %}
+                            <div class="program{% if video.is_current %} current{% endif %}{% if not video.is_current %} unavailable{% endif %}" 
+                                role="gridcell"
+                                tabindex="{% if video.is_current %}-1{% else %}0{% endif %}"
+                                data-row="{{ row_loop.index0 }}"
+                                data-col="{{ loop.index0 }}"
+                                data-video-id="{{ video.id }}"
+                                data-video-title="{{ video.title }}"
+                                data-duration="{{ video.duration }}"
+                                aria-label="{{ 'Currently playing: ' if video.is_current }}{{ video.title }}">
                                 <div class="program-info">
                                     <div class="program-title">{{ video.title }}</div>
                                 </div>
                             </div>
                             {% endfor %}
                         {% else %}
-                            <div class="program no-content">
+                            <div class="program no-content" role="status">
                                 <p>No videos available</p>
                             </div>
                         {% endif %}
@@ -61,27 +80,27 @@
         
         <div class="guide-footer">
             <div class="footer-buttons">
-                <button onclick="location.href='/manage'">Manage Channels</button>
+                <button onclick="location.href='/manage'" tabindex="-1">Manage Channels</button>
             </div>
             <div class="footer-info">
-                Press SELECT to view • Press MENU for options
+                Use arrow keys to navigate • Enter to play current programs • Esc to close video
             </div>
         </div>
     </div>
     
     <!-- Video Player Modal -->
-    <div id="videoModal" class="modal">
+    <div id="videoModal" class="modal" role="dialog" aria-labelledby="videoTitle" aria-modal="true">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeVideoModal()">&times;</span>
+            <span class="close-modal" onclick="closeVideoModal()" aria-label="Close video" tabindex="0">&times;</span>
             <div class="video-container">
-                <iframe id="videoPlayer" frameborder="0" allowfullscreen></iframe>
+                <iframe id="videoPlayer" frameborder="0" allowfullscreen title="YouTube video player"></iframe>
             </div>
             <div class="video-info">
                 <div id="videoTitle" class="video-title"></div>
             </div>
             <div class="video-controls">
-                <button class="control-btn" onclick="openInYouTube()">Open in YouTube</button>
-                <button class="control-btn" onclick="closeVideoModal()">Close</button>
+                <button class="control-btn" onclick="openInYouTube()" aria-label="Open in YouTube">Open in YouTube</button>
+                <button class="control-btn" onclick="closeVideoModal()" aria-label="Close video player">Close</button>
             </div>
         </div>
     </div>

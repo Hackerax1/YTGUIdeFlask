@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 import googleapiclient.discovery
 from dotenv import load_dotenv
 import re
+import json
+import requests
+from typing import List, Dict, Any
 
 # Load environment variables
 load_dotenv()
@@ -208,3 +211,69 @@ def get_videos_for_channels(channels_data):
         result.append(channel_copy)
         
     return result
+
+def get_channel_videos(channel_id: str, max_results: int = 24) -> List[Dict[str, Any]]:
+    """
+    Get videos for a channel, distributed across 24-hour slots.
+    Returns exactly max_results videos to fill the 24-hour schedule.
+    """
+    base_url = "https://www.googleapis.com/youtube/v3/search"
+    params = {
+        'key': API_KEY,
+        'channelId': channel_id,
+        'part': 'snippet',
+        'order': 'date',
+        'type': 'video',
+        'maxResults': max_results
+    }
+
+    try:
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        videos = []
+        for item in data.get('items', []):
+            video = {
+                'id': item['id']['videoId'],
+                'title': item['snippet']['title'],
+                'thumbnail': item['snippet']['thumbnails']['medium']['url'],
+                'publishedAt': item['snippet']['publishedAt'],
+                'is_current': False  # Will be set by the app based on current time
+            }
+            videos.append(video)
+
+        # Pad with None if we don't have enough videos
+        while len(videos) < max_results:
+            videos.append(None)
+
+        return videos
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching videos for channel {channel_id}: {str(e)}")
+        return []
+
+def get_videos_for_channels(channels: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Get videos for multiple channels and add timing information
+    """
+    channels_with_videos = []
+    
+    for channel in channels:
+        channel_copy = channel.copy()
+        videos = get_channel_videos(channel['channelId'])
+        
+        # Calculate time slots for videos
+        if videos:
+            minutes_per_slot = (24 * 60) / len(videos)
+            for i, video in enumerate(videos):
+                if video:
+                    start_time = timedelta(minutes=i * minutes_per_slot)
+                    end_time = timedelta(minutes=(i + 1) * minutes_per_slot)
+                    video['start_time'] = str(start_time)
+                    video['end_time'] = str(end_time)
+        
+        channel_copy['videos'] = videos
+        channels_with_videos.append(channel_copy)
+    
+    return channels_with_videos

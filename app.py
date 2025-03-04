@@ -1,8 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 import json
 import os
-from datetime import datetime
-from youtube_api import get_videos_for_channels
+from datetime import datetime, timedelta
+from youtube_api import get_videos_for_channels, get_channel_videos, get_channel_id_from_url
 
 app = Flask(__name__)
 
@@ -16,14 +16,51 @@ def save_data(data):
     with open(os.path.join('data', 'data.json'), 'w') as f:
         json.dump(data, f, indent=4)
 
+def is_current_time_slot(video_index, total_videos):
+    now = datetime.now()
+    minutes_since_midnight = now.hour * 60 + now.minute
+    minutes_per_slot = (24 * 60) / total_videos if total_videos > 0 else 0
+    video_start_time = video_index * minutes_per_slot
+    video_end_time = (video_index + 1) * minutes_per_slot
+    
+    return video_start_time <= minutes_since_midnight < video_end_time
+
 @app.route('/')
 def index():
     data = load_data()
+    # Add channel IDs to the data
+    for channel in data:
+        # Use the first YouTube link to get the channel ID
+        if channel['youtubeLinks']:
+            channel['channelId'] = get_channel_id_from_url(channel['youtubeLinks'][0])
+    
     # Fetch videos for each channel
     channels_with_videos = get_videos_for_channels(data)
-    # Format current time for display
+    
+    # Update videos with current playing status
+    for channel in channels_with_videos:
+        if 'channelId' in channel and channel['channelId']:
+            videos = get_channel_videos(channel['channelId'])
+            if videos:
+                # Only keep 3 videos for the 90-minute window
+                channel['videos'] = videos[:3]
+                
+                # Mark videos as current or not based on time slot
+                now = datetime.now()
+                minutes_since_midnight = now.hour * 60 + now.minute
+                for i, video in enumerate(channel['videos']):
+                    if video:
+                        start_time = minutes_since_midnight + (i * 30)
+                        end_time = start_time + 30
+                        video['is_current'] = (minutes_since_midnight >= start_time and 
+                                            minutes_since_midnight < end_time)
+    
+    # Format current time and pass current datetime for time slots
     current_time = datetime.now().strftime("%I:%M %p")
-    return render_template('index.html', channels=channels_with_videos, current_time=current_time)
+    return render_template('index.html', 
+                         channels=channels_with_videos, 
+                         current_time=current_time,
+                         now=datetime.now())
 
 @app.route('/manage')
 def manage():
