@@ -1,11 +1,10 @@
-
 **Priority 1: Essential Functionality & User Experience**
 
-*   [ ] **Consistent Player Window:** (As you identified) This is crucial for the TV guide feel.
-*   [ ] **Video Description:** (As you identified) Adding descriptions significantly improves the user experience.
-*   [ ] **Keyboard Shortcuts:** (As you identified) Key for navigation and usability.
-*   [ ] **Error Handling:** Implement basic error handling in youtube_api.py to prevent crashes and display informative messages.
-*   [ ] **Loading Indicators:** Add basic loading indicators to provide feedback during API calls.
+*   [X] **Consistent Player Window:** (As you identified) This is crucial for the TV guide feel.
+*   [X] **Video Description:** (As you identified) Adding descriptions significantly improves the user experience.
+*   [X] **Keyboard Shortcuts:** (As you identified) Key for navigation and usability.
+*   [X] **Error Handling:** Implement basic error handling in youtube_api.py to prevent crashes and display informative messages.
+*   [X] **Loading Indicators:** Add basic loading indicators to provide feedback during API calls.
 
 **Priority 2: Core Improvements & Refinement**
 
@@ -19,15 +18,15 @@
 
 *   [ ] **Pagination:** Implement pagination for large API responses.
 *   [ ] **Retry Mechanism:** Add a retry mechanism for failed API requests.
-*   [ ] **Video Duration:** Fetch and include video duration in video objects.
+*   [X] **Video Duration:** Fetch and include video duration in video objects.
 *   [ ] **Optimize API Calls:** Batch API requests where possible.
-*   [ ] **Dynamic Time Markers:** Dynamically generate time markers in `index.html`.
+*   [X] **Dynamic Time Markers:** Dynamically generate time markers in `index.html`.
 *   [ ] **Refactor Keyboard Navigation:** Refactor keyboard navigation logic in `index.js`.
-*   [ ] **Store Theme Preference:** Store the user's theme preference in local storage.
-*   [ ] **Error Messages (Manage Channels):** Display user-friendly error messages on the manage channels page.
-*   [ ] **Confirmation Dialogs (Manage Channels):** Use confirmation dialogs before deleting channels.
+*   [X] **Store Theme Preference:** Store the user's theme preference in local storage.
+*   [X] **Error Messages (Manage Channels):** Display user-friendly error messages on the manage channels page.
+*   [X] **Confirmation Dialogs (Manage Channels):** Use confirmation dialogs before deleting channels.
 *   [ ] **Accessibility:** Improve accessibility across the application.
-*   [ ] **Responsive Design:** Ensure the application is responsive.
+*   [X] **Responsive Design:** Ensure the application is responsive.
 *   [ ] **CSS Variables:** Use CSS variables for styling.
 
 **Priority 4: Testing & Documentation**

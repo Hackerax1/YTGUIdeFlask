@@ -258,3 +258,120 @@ body.keyboard-mode * {
     color: #666;
     font-size: 12px;
 }
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .container {
+        width: 98%;
+        padding: 8px;
+    }
+    
+    .channel-info {
+        width: 120px;
+    }
+    
+    .program-grid {
+        width: calc(100% - 120px);
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 22px;
+    }
+    
+    .theme-switcher button {
+        padding: 6px 10px;
+        margin: 0 2px;
+        font-size: 14px;
+    }
+    
+    .channel-info {
+        width: 100px;
+    }
+    
+    .program-grid {
+        width: calc(100% - 100px);
+    }
+    
+    .channel-number {
+        height: 70px;
+    }
+    
+    .guide-row {
+        height: 70px;
+    }
+    
+    .program-title {
+        font-size: 11px;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        width: 100%;
+        padding: 5px;
+    }
+    
+    h1 {
+        font-size: 18px;
+        margin: 5px 0;
+    }
+    
+    .theme-switcher {
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .theme-switcher button {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    .channel-numbers {
+        width: 30px;
+    }
+    
+    .channel-number {
+        height: 60px;
+        font-size: 12px;
+    }
+    
+    .channel-info {
+        width: 80px;
+    }
+    
+    .program-grid {
+        width: calc(100% - 80px);
+    }
+    
+    .guide-row {
+        height: 60px;
+    }
+    
+    .channel-name {
+        font-size: 12px;
+    }
+    
+    .display-option {
+        font-size: 10px;
+    }
+    
+    .program-title {
+        font-size: 10px;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+    
+    .footer-info {
+        font-size: 10px;
+    }
+    
+    .footer-buttons button {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}

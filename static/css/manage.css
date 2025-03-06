@@ -118,3 +118,143 @@ button:hover {
     background-color: #d9534f;
     margin-left: 10px;
 }
+
+/* Custom Confirmation Dialog Styles */
+.confirm-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.confirm-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 80%;
+}
+
+.confirm-content h3 {
+    margin-top: 0;
+    color: #003366;
+}
+
+.confirm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.confirm-yes {
+    background-color: #d9534f;
+    padding: 8px 16px;
+}
+
+.confirm-yes:hover {
+    background-color: #c9302c;
+}
+
+.confirm-no {
+    background-color: #5bc0de;
+    padding: 8px 16px;
+}
+
+.confirm-no:hover {
+    background-color: #46b8da;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .manage-container {
+        padding: 10px;
+    }
+    
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    .confirm-content {
+        padding: 15px;
+    }
+    
+    .confirm-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .confirm-yes, .confirm-no {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .manage-container {
+        padding: 5px;
+    }
+    
+    .section {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    th, td {
+        padding: 6px;
+        font-size: 12px;
+    }
+    
+    .edit-btn, .delete-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    
+    label {
+        font-size: 14px;
+    }
+    
+    .link-container {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .remove-link-btn {
+        margin-left: 0;
+        width: 100%;
+        padding: 5px;
+    }
+    
+    /* Show notification container at the bottom on small screens */
+    #notification-container {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 0 !important;
+        left: 0 !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    #notification-container > div {
+        width: 90%;
+    }
+}

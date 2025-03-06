@@ -61,13 +61,7 @@
             <div class="timeline">
                 <div class="play-head" id="playHead"></div>
                 <div class="time-markers">
-                    {% for i in range(3) %}
-                        {% set minutes = now.minute + (i * 30) %}
-                        {% set hours = now.hour + (minutes // 60) %}
-                        {% set adjusted_minutes = minutes % 60 %}
-                        {% set display_time = now.replace(hour=hours % 24, minute=adjusted_minutes) %}
-                        <div class="time-marker">{{ display_time.strftime('%I:%M %p') }}</div>
-                    {% endfor %}
+                    <!-- Time markers will be generated dynamically by JavaScript -->
                 </div>
             </div>
         </div>
@@ -148,6 +142,7 @@
         </div>
     </div>
 
-    <script src="/static/js/index.js"></script>
+    <!-- Update script tag to use ES modules -->
+    <script type="module" src="/static/js/index.js"></script>
 </body>
 </html>

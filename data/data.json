@@ -1,32 +1,98 @@
 [
     {
         "id": "1",
-        "name": "Tech Reviews",
-        "stationId": 205,
-        "displayOption": "popular",
+        "name": "Tech Insights",
         "youtubeLinks": [
-            "https://www.youtube.com/channel/UCXGgrKt94gR6lmN4aN3mYTg",
-            "https://www.youtube.com/channel/UCBJycsmduvYEL83R_U4JriQ"
-        ]
+            "https://www.youtube.com/channel/UC0vBXGSyV14uvJ4hECDOl0Q", 
+            "https://www.youtube.com/channel/UCsTcErHg8oDvUnTzoqsYeNw", 
+            "https://www.youtube.com/channel/UCXuqSBlHAE6Xw-yeJA0Tunw", 
+            "https://www.youtube.com/channel/UCVYamHliCI9rw1tHR1xbkfw"  
+        ],
+        "displayOption": "random",
+        "stationId": 201
     },
     {
         "id": "2",
-        "name": "Gaming Zone",
-        "stationId": 210,
-        "displayOption": "new",
+        "name": "Fitness and Health",
         "youtubeLinks": [
-            "https://www.youtube.com/channel/UCYzPXprvl5Y-Sf0g4vX-m6g",
-            "https://www.youtube.com/channel/UCKy1dAqELo0zrOtPkf0eTMw"
-        ]
+            "https://www.youtube.com/channel/UCIJwWYOfsCfz6PjxbONYXSg", 
+            "https://www.youtube.com/channel/UCiP6wD_tYlYLYh3agzbByWQ", 
+            "https://www.youtube.com/channel/UCaBqRxHEMomgFU-AkSfodCw", 
+            "https://www.youtube.com/channel/UCtwVv1f4ntf3EVWjK9b5p2g"  
+        ],
+        "displayOption": "popular",
+        "stationId": 202
     },
     {
         "id": "3",
-        "name": "Random Fun",
-        "stationId": 215,
-        "displayOption": "random",
+        "name": "Educational Animations",
         "youtubeLinks": [
-            "https://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw",
-            "https://www.youtube.com/channel/UCY1kMZp36IQSyNx_9h4mpCg"
-        ]
+            "https://www.youtube.com/channel/UCsXVk37bltHxD1rDPwtNM8Q", 
+            "https://www.youtube.com/channel/UCsooa4yRKGN_zEE8iknghZA", 
+            "https://www.youtube.com/channel/UC6107grRI4m0o2-emgoDnAA", 
+            "https://www.youtube.com/channel/UCoxcjq-8xIDTYp3uz647V5A" 
+        ],
+        "displayOption": "new",
+        "stationId": 203
+    },
+    {
+        "id": "4",
+        "name": "Cooking and Recipes",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UCpSgg_ECBj25s9moCDfSTsA", 
+            "https://www.youtube.com/channel/UCJFp8uSYCjXOMnkUyb3CQ3Q", 
+            "https://www.youtube.com/channel/UC8gFadPgK2r1ndqLI04Xvvw", 
+            "https://www.youtube.com/channel/UCzH5n3Ih5kgQoiDAQt2FwLw"  
+        ],
+        "displayOption": "random",
+        "stationId": 204
+    },
+    {
+        "id": "5",
+        "name": "Travel Adventures",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UCXulruMI7BHj3kGyosNa0jA", 
+            "https://www.youtube.com/channel/UC4ijq8Cg-8zQKx8OH12dUSw", 
+            "https://www.youtube.com/channel/UCamL7RH1gR2gMJS6dZw2gEg", 
+            "https://www.youtube.com/channel/UC5qraM5EdxGJGD3v2Y2gQ1Q"  
+        ],
+        "displayOption": "popular",
+        "stationId": 205
+    },
+    {
+        "id": "6",
+        "name": "Science and Exploration",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UCZYTClx2T1of7BRZ86-8fow", 
+            "https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA", 
+            "https://www.youtube.com/channel/UCsXVk37bltHxD1rDPwtNM8Q",
+            "https://www.youtube.com/channel/UC6nSFpj9HTCZ5t-N3Rm3-HA"  
+        ],
+        "displayOption": "new",
+        "stationId": 206
+    },
+    {
+        "id": "7",
+        "name": "Gaming Highlights",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw", 
+            "https://www.youtube.com/channel/UCa6vGFO9ty8v5KZJXQxdhaw", 
+            "https://www.youtube.com/channel/UC0ZTPkdxlAKf-V33tqXwi3Q", 
+            "https://www.youtube.com/channel/UCqECaJ8Gagnn7YCbPEzWH6g"  
+        ],
+        "displayOption": "random",
+        "stationId": 207
+    },
+    {
+        "id": "8",
+        "name": "DIY and Crafts",
+        "youtubeLinks": [
+            "https://www.youtube.com/channel/UC295-Dw_tDNtZXFeAPAW6Aw",
+            "https://www.youtube.com/channel/UC6c1z7bA__85CIWZ_jpCK-Q",
+            "https://www.youtube.com/channel/UCaBqRxHEMomgFU-AkSfodCw",
+            "https://www.youtube.com/channel/UCbE2yP2V4l8N8C8rMH5ZTJQ" 
+        ],
+        "displayOption": "popular",
+        "stationId": 208
     }
 ]
