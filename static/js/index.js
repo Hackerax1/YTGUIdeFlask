@@ -65,8 +65,38 @@ document.addEventListener('keydown', function(e) {
             if (currentProgram && currentProgram.classList.contains('current')) {
                 const videoId = currentProgram.dataset.videoId;
                 const videoTitle = currentProgram.dataset.videoTitle;
-                playVideo(videoId, videoTitle);
+                const videoDescription = currentProgram.dataset.description || 'No description available.';
+                playVideo(videoId, videoTitle, videoDescription);
             }
+            break;
+        case 'p':
+        case 'P':
+            e.preventDefault();
+            const currentProg = getCurrentProgram();
+            if (currentProg && currentProg.classList.contains('current')) {
+                const videoId = currentProg.dataset.videoId;
+                const videoTitle = currentProg.dataset.videoTitle;
+                const videoDescription = currentProg.dataset.description || 'No description available.';
+                playVideo(videoId, videoTitle, videoDescription);
+            }
+            break;
+        case 'Escape':
+            // If any modal is open, close it
+            const openModal = document.querySelector('.modal[style*="display: flex"]');
+            if (openModal) {
+                closeVideoModal();
+            }
+            break;
+        case 'm':
+        case 'M':
+            // Navigate to manage page
+            window.location.href = '/manage';
+            break;
+        case 'h':
+        case 'H':
+        case '?':
+            // Show keyboard shortcuts help
+            showKeyboardHelp();
             break;
     }
 });
@@ -109,22 +139,30 @@ function updatePlayHead() {
 // Switch between themes
 function switchTheme(themePath) {
     document.getElementById('themeStylesheet').href = themePath;
+    // Store theme preference in local storage (will be implemented in Priority 3)
 }
 
 // Play a YouTube video in the modal
-function playVideo(videoId, videoTitle) {
+function playVideo(videoId, videoTitle, videoDescription = '') {
     // Store last focused element for returning focus when modal closes
     lastFocusedElement = document.activeElement;
     
     // Set video ID for reference
     currentVideoId = videoId;
     
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('videoLoading');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+    }
+    
     // Update iframe source
     const player = document.getElementById('videoPlayer');
     player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
     
-    // Update title
+    // Update title and description
     document.getElementById('videoTitle').textContent = videoTitle;
+    document.getElementById('videoDescription').textContent = videoDescription;
     
     // Show the modal
     const modal = document.getElementById('videoModal');
@@ -135,6 +173,13 @@ function playVideo(videoId, videoTitle) {
 
     // Trap focus in modal
     modal.addEventListener('keydown', trapFocus);
+    
+    // Hide loading indicator when the video loads
+    player.onload = function() {
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+    };
 }
 
 // Close the video modal
@@ -210,6 +255,26 @@ function updateProgramWidths() {
     });
 }
 
+// Get help for keyboard shortcuts
+function showKeyboardHelp() {
+    alert('Keyboard Shortcuts:\n' +
+          '- Arrow keys: Navigate through programs\n' +
+          '- Enter or P: Play current video\n' +
+          '- Escape: Close video or modal\n' +
+          '- M: Go to Manage Channels page\n');
+}
+
+// Hide the page loader
+function hidePageLoader() {
+    const pageLoader = document.getElementById('pageLoader');
+    if (pageLoader) {
+        pageLoader.style.opacity = '0';
+        setTimeout(() => {
+            pageLoader.style.display = 'none';
+        }, 300);
+    }
+}
+
 // Initialize event handlers
 document.addEventListener('DOMContentLoaded', function() {
     // Set initial focus
@@ -233,4 +298,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update program widths based on duration
     updateProgramWidths();
+    
+    // Handle iframe load event to hide loading indicator
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.addEventListener('load', function() {
+        const loadingIndicator = document.getElementById('videoLoading');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+    });
+    
+    // Hide page loader when everything is loaded
+    window.addEventListener('load', function() {
+        setTimeout(hidePageLoader, 500); // Add a small delay for smoother transition
+    });
+    
+    // Also hide loader after a timeout in case load event doesn't fire
+    setTimeout(hidePageLoader, 3000);
 });
