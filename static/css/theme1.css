@@ -1,8 +1,8 @@
 /* Classic TV Guide Theme */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: var(--background-color);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
 }
@@ -10,36 +10,68 @@ body {
 .container {
     width: 95%;
     margin: 0 auto;
-    padding: 10px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-md);
+    background-color: var(--background-light);
+    box-shadow: var(--box-shadow);
 }
 
 h1 {
     text-align: center;
-    color: #003366;
-    font-size: 28px;
-    margin: 10px 0;
-    text-shadow: 1px 1px 1px #ccc;
+    color: var(--primary-color);
+    font-size: var(--font-size-lg);
+    margin: var(--spacing-md) 0;
+    text-shadow: 1px 1px 1px var(--border-color);
+}
+
+/* Page Loader */
+.page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    flex-direction: column;
+    color: white;
+}
+
+.spinner {
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top: 5px solid #ffffff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: var(--spacing-lg);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .theme-switcher {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-lg);
 }
 
 .theme-switcher button {
-    background-color: #003366;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     padding: 8px 16px;
-    margin: 0 5px;
+    margin: 0 var(--spacing-sm);
     cursor: pointer;
     border-radius: 3px;
+    transition: background-color var(--transition-speed);
 }
 
 .theme-switcher button:hover {
-    background-color: #004b99;
+    background-color: var(--primary-hover);
 }
 
 /* Time bar styles */
@@ -47,19 +79,19 @@ h1 {
     position: relative;
     display: flex;
     align-items: center;
-    background: #1a1a1a;
-    color: #fff;
-    padding: 10px;
+    background: var(--timeline-bar);
+    color: white;
+    padding: var(--spacing-md);
     border-bottom: 2px solid #333;
-    margin-bottom: 10px;
+    margin-bottom: var(--spacing-md);
 }
 
 .timeline {
     position: relative;
     height: 30px;
-    background: #2a2a2a;
+    background: var(--timeline-bg);
     flex-grow: 1;
-    margin: 0 20px;
+    margin: 0 var(--spacing-lg);
     display: flex;
     justify-content: space-between;
 }
@@ -69,7 +101,7 @@ h1 {
     top: 0;
     width: 2px;
     height: 100%;
-    background: #ff0000;
+    background: var(--playhead-color);
     z-index: 2;
 }
 
@@ -94,23 +126,23 @@ h1 {
 /* Guide container and layout */
 .guide-container {
     display: flex;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
 }
 
 .channel-numbers {
-    width: 50px;
-    background-color: #e0e0e0;
-    border-right: 1px solid #ccc;
+    width: var(--channel-number-width);
+    background-color: var(--background-color);
+    border-right: 1px solid var(--border-color);
 }
 
 .channel-number {
-    height: 80px;
+    height: var(--channel-height);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    border-bottom: 1px solid #ccc;
-    color: #003366;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-color);
 }
 
 .guide-content {
@@ -121,18 +153,18 @@ h1 {
 
 .guide-row {
     display: flex;
-    border-bottom: 1px solid #ccc;
-    height: 80px;
+    border-bottom: 1px solid var(--border-color);
+    height: var(--channel-height);
 }
 
 .guide-row:nth-child(odd) {
-    background-color: #f9f9f9;
+    background-color: var(--background-light);
 }
 
 .channel-info {
-    width: 150px;
-    padding: 5px;
-    border-right: 1px solid #ccc;
+    width: var(--channel-width);
+    padding: var(--spacing-sm);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -140,13 +172,13 @@ h1 {
 
 .channel-name {
     font-weight: bold;
-    color: #003366;
+    color: var(--primary-color);
 }
 
 .display-option {
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
+    font-size: var(--font-size-sm);
+    color: var(--text-light);
+    margin-top: var(--spacing-sm);
 }
 
 .program-grid {
@@ -158,12 +190,12 @@ h1 {
 
 .program {
     height: 100%;
-    border-right: 1px solid #ddd;
-    padding: 5px;
+    border-right: 1px solid var(--border-color);
+    padding: var(--spacing-sm);
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
     flex-shrink: 0;
     /* Remove the fixed width */
     width: auto;
@@ -174,7 +206,7 @@ h1 {
 }
 
 .program:hover {
-    background-color: #e6f2ff;
+    background-color: var(--hover-color);
 }
 
 .program-info {
@@ -204,11 +236,11 @@ h1 {
 }
 
 .program.current {
-    border: 2px solid #ff0000;
+    border: 2px solid var(--playhead-color);
 }
 
 .program:focus {
-    outline: 3px solid #4a90e2;
+    outline: 3px solid var(--focus-color);
     position: relative;
     z-index: 1;
 }
@@ -225,7 +257,7 @@ body.keyboard-mode * {
 
 /* Navigation highlight */
 .program.nav-focus {
-    outline: 3px solid #4a90e2;
+    outline: 3px solid var(--focus-color);
     position: relative;
     z-index: 1;
 }
@@ -235,28 +267,31 @@ body.keyboard-mode * {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #e0e0e0;
-    padding: 10px;
-    margin-top: 10px;
+    background-color: var(--background-color);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-md);
     border-radius: 3px;
 }
 
 .footer-buttons button {
-    background-color: #003366;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: var(--spacing-sm) var(--spacing-md);
     cursor: pointer;
     border-radius: 3px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color var(--transition-speed);
 }
 
 .footer-buttons button:hover {
-    background-color: #004b99;
+    background-color: var(--primary-hover);
 }
 
 .footer-info {
-    color: #666;
-    font-size: 12px;
+    color: var(--text-light);
+    font-size: var(--font-size-sm);
 }
 
 /* Responsive styles */
@@ -277,7 +312,7 @@ body.keyboard-mode * {
 
 @media (max-width: 768px) {
     h1 {
-        font-size: 22px;
+        font-size: var(--font-size-md);
     }
     
     .theme-switcher button {
@@ -303,7 +338,7 @@ body.keyboard-mode * {
     }
     
     .program-title {
-        font-size: 11px;
+        font-size: var(--font-size-sm);
         -webkit-line-clamp: 2;
         line-clamp: 2;
     }
@@ -312,7 +347,7 @@ body.keyboard-mode * {
 @media (max-width: 576px) {
     .container {
         width: 100%;
-        padding: 5px;
+        padding: var(--spacing-sm);
     }
     
     h1 {

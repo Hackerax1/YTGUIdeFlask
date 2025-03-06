@@ -1,0 +1,36 @@
+:root {
+    /* Colors */
+    --primary-color: #003366;
+    --primary-hover: #004b99;
+    --text-color: #333;
+    --text-light: #666;
+    --background-color: #f0f0f0;
+    --background-light: #fff;
+    --border-color: #ccc;
+    --timeline-bg: #2a2a2a;
+    --timeline-bar: #1a1a1a;
+    --playhead-color: #ff0000;
+    --focus-color: #4a90e2;
+    --hover-color: #e6f2ff;
+    
+    /* Spacing */
+    --spacing-sm: 5px;
+    --spacing-md: 10px;
+    --spacing-lg: 20px;
+    
+    /* Dimensions */
+    --channel-height: 80px;
+    --channel-width: 150px;
+    --channel-number-width: 50px;
+    
+    /* Shadows */
+    --box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
+    /* Animation */
+    --transition-speed: 0.2s;
+    
+    /* Typography */
+    --font-size-sm: 12px;
+    --font-size-md: 14px;
+    --font-size-lg: 28px;
+}

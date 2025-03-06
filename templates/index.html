@@ -7,69 +7,39 @@
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>YouTube TV Guide</title>
+    <link rel="stylesheet" href="/static/css/theme-variables.css">
     <link rel="stylesheet" href="/static/css/theme1.css" id="themeStylesheet">
     <link rel="stylesheet" href="/static/css/modal.css">
-    <style>
-        .page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            flex-direction: column;
-            color: white;
-        }
-        
-        .spinner {
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid #ffffff;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
 </head>
 <body>
     <!-- Page Loading Indicator -->
-    <div class="page-loader" id="pageLoader">
-        <div class="spinner"></div>
+    <div class="page-loader" id="pageLoader" role="alert" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
         <p>Loading TV guide data...</p>
     </div>
 
     <div class="container">
         <h1>YouTube TV Guide</h1>
-        <div class="theme-switcher">
-            <button onclick="switchTheme('/static/css/theme1.css')">Classic Guide</button>
-            <button onclick="switchTheme('/static/css/theme2.css')">Night Mode</button>
-            <button onclick="switchTheme('/static/css/theme3.css')">Retro Guide</button>
-        </div>
+        <nav class="theme-switcher" aria-label="Theme selection">
+            <button data-theme="/static/css/theme1.css">Classic Guide</button>
+            <button data-theme="/static/css/theme2.css">Night Mode</button>
+            <button data-theme="/static/css/theme3.css">Retro Guide</button>
+        </nav>
         
-        <div class="time-bar">
-            <div class="current-time">{{ current_time }}</div>
+        <div class="time-bar" role="timer" aria-label="Current time and timeline">
+            <div class="current-time" aria-live="polite">{{ current_time }}</div>
             <div class="timeline">
-                <div class="play-head" id="playHead"></div>
-                <div class="time-markers">
+                <div class="play-head" id="playHead" role="presentation"></div>
+                <div class="time-markers" role="presentation">
                     <!-- Time markers will be generated dynamically by JavaScript -->
                 </div>
             </div>
         </div>
         
         <div class="guide-container">
-            <div class="channel-numbers">
+            <div class="channel-numbers" role="presentation">
                 {% for channel in channels %}
-                <div class="channel-number">{{ channel.stationId }}</div>
+                <div class="channel-number" aria-hidden="true">{{ channel.stationId }}</div>
                 {% endfor %}
             </div>
             
@@ -80,27 +50,27 @@
                         <div class="channel-name">{{ channel.name }}</div>
                         <div class="display-option">{{ channel.displayOption|title }}</div>
                     </div>
-                    <div class="program-grid" role="grid">
+                    <div class="program-grid" role="grid" aria-label="Programs for {{ channel.name }}">
                         {% if channel.videos %}
                             {% set row_loop = loop %}
                             {% for video in channel.videos[:3] %}
                             <div class="program{% if video.is_current %} current{% endif %}{% if not video.is_current %} unavailable{% endif %}" 
                                 role="gridcell"
-                                tabindex="{% if video.is_current %}-1{% else %}0{% endif %}"
+                                tabindex="{% if video.is_current %}0{% else %}-1{% endif %}"
                                 data-row="{{ row_loop.index0 }}"
                                 data-col="{{ loop.index0 }}"
                                 data-video-id="{{ video.id }}"
                                 data-video-title="{{ video.title }}"
                                 data-description="{{ video.description if video.description else 'No description available.' }}"
                                 data-duration="{{ video.duration }}"
-                                aria-label="{{ 'Currently playing: ' if video.is_current }}{{ video.title }}">
+                                aria-label="{% if video.is_current %}Currently playing: {% endif %}{{ video.title }}{% if not video.is_current %} (unavailable){% endif %}">
                                 <div class="program-info">
                                     <div class="program-title">{{ video.title }}</div>
                                 </div>
                             </div>
                             {% endfor %}
                         {% else %}
-                            <div class="program no-content" role="status">
+                            <div class="program no-content" role="status" aria-label="No videos available for {{ channel.name }}">
                                 <p>No videos available</p>
                             </div>
                         {% endif %}
@@ -112,37 +82,36 @@
         
         <div class="guide-footer">
             <div class="footer-buttons">
-                <button onclick="location.href='/manage'" tabindex="-1">Manage Channels</button>
+                <a href="/manage" class="button" role="button">Manage Channels</a>
             </div>
-            <div class="footer-info">
+            <div class="footer-info" role="contentinfo">
                 Use arrow keys to navigate • Enter to play current programs • Esc to close video
             </div>
         </div>
     </div>
     
     <!-- Video Player Modal -->
-    <div id="videoModal" class="modal" role="dialog" aria-labelledby="videoTitle" aria-modal="true">
+    <div id="videoModal" class="modal" role="dialog" aria-labelledby="videoTitle" aria-modal="true" hidden>
         <div class="modal-content">
-            <span class="close-modal" onclick="closeVideoModal()" aria-label="Close video" tabindex="0">&times;</span>
+            <button class="close-modal" aria-label="Close video">×</button>
             <div class="video-container">
-                <div class="video-loading" id="videoLoading">
-                    <div class="loading-spinner"></div>
+                <div class="video-loading" id="videoLoading" aria-live="polite">
+                    <div class="loading-spinner" aria-hidden="true"></div>
                     <p>Loading video...</p>
                 </div>
                 <iframe id="videoPlayer" frameborder="0" allowfullscreen title="YouTube video player"></iframe>
             </div>
             <div class="video-info">
-                <div id="videoTitle" class="video-title"></div>
+                <h2 id="videoTitle" class="video-title"></h2>
                 <div id="videoDescription" class="video-description"></div>
             </div>
             <div class="video-controls">
-                <button class="control-btn" onclick="openInYouTube()" aria-label="Open in YouTube">Open in YouTube</button>
-                <button class="control-btn" onclick="closeVideoModal()" aria-label="Close video player">Close</button>
+                <button class="control-btn" data-action="open-youtube" aria-label="Open in YouTube">Open in YouTube</button>
+                <button class="control-btn" data-action="close" aria-label="Close video player">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Update script tag to use ES modules -->
     <script type="module" src="/static/js/index.js"></script>
 </body>
 </html>
