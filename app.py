@@ -6,29 +6,53 @@ import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from youtube.youtube_api import get_videos_for_channels, get_channel_videos, get_channel_id_from_url
+import pytz
 
 app = Flask(__name__)
 
 # Add a secret key for session management
 app.secret_key = os.getenv('FLASK_SECRET_KEY', secrets.token_hex(16))
 
+# Define the server's time zone
+SERVER_TZ = pytz.timezone('UTC')
+
 # Load data from JSON file
 def load_data():
     with open(os.path.join('data', 'data.json')) as f:
-        return json.load(f)
+        data = json.load(f)
+        validate_data(data)
+        return data
+
+# Validate data loaded from JSON file
+def validate_data(data):
+    required_fields = ['id', 'name', 'youtubeLinks', 'displayOption', 'stationId']
+    for channel in data:
+        for field in required_fields:
+            if field not in channel:
+                raise ValueError(f"Missing required field '{field}' in channel data")
+        if not isinstance(channel['youtubeLinks'], list) or not all(isinstance(link, str) for link in channel['youtubeLinks']):
+            raise ValueError("'youtubeLinks' must be a list of strings")
+        if channel['displayOption'] not in ['random', 'popular', 'new']:
+            raise ValueError("'displayOption' must be one of 'random', 'popular', or 'new'")
 
 # Save data to JSON file
 def save_data(data):
     with open(os.path.join('data', 'data.json'), 'w') as f:
         json.dump(data, f, indent=4)
 
+# Get the current time in the server's time zone
+def get_current_time():
+    return datetime.now(SERVER_TZ)
+
+# Determine if a video is in the current time slot
 def is_current_time_slot(video_index, total_videos):
-    now = datetime.now()
+    now = get_current_time()
     minutes_since_midnight = now.hour * 60 + now.minute
-    minutes_per_slot = (24 * 60) / total_videos if total_videos > 0 else 0
+    if total_videos == 0:
+        return False
+    minutes_per_slot = (24 * 60) / total_videos
     video_start_time = video_index * minutes_per_slot
-    video_end_time = (video_index + 1) * minutes_per_slot
-    
+    video_end_time = video_start_time + minutes_per_slot
     return video_start_time <= minutes_since_midnight < video_end_time
 
 # Simple API key protection for API endpoints
@@ -73,7 +97,7 @@ def index():
                 channel['videos'] = videos[:3]
                 
                 # Mark videos as current or not based on time slot
-                now = datetime.now()
+                now = get_current_time()
                 minutes_since_midnight = now.hour * 60 + now.minute
                 for i, video in enumerate(channel['videos']):
                     if video:
@@ -83,11 +107,11 @@ def index():
                                             minutes_since_midnight < end_time)
     
     # Format current time and pass current datetime for time slots
-    current_time = datetime.now().strftime("%I:%M %p")
+    current_time = get_current_time().strftime("%I:%M %p")
     return render_template('index.html', 
                          channels=channels_with_videos, 
                          current_time=current_time,
-                         now=datetime.now())
+                         now=get_current_time())
 
 @app.route('/manage')
 def manage():

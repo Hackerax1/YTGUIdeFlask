@@ -40,9 +40,12 @@ pip install -r requirements.txt
 
 4. Set up your environment variables:
    - Create a `.env` file in the root directory
-   - Add your YouTube API key (you can get one from the Google Cloud Console):
+   - Add your YouTube API key and other configuration options:
    ```
    VITE_YT_API_KEY=your_youtube_api_key_here
+   FLASK_SECRET_KEY=your_flask_secret_key_here
+   API_ACCESS_KEY=your_api_access_key_here
+   SKIP_API_KEY_CHECK=false
    ```
 
 5. Run the application:

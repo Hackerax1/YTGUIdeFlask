@@ -276,12 +276,33 @@ function resetAddChannelForm() {
     setupRemoveLinkListeners();
 }
 
+// Handle validation errors
+function handleValidationErrors(event) {
+    const messages = event.detail.messages;
+    const errorContainer = document.createElement('div');
+    errorContainer.className = 'error-container';
+    messages.forEach(message => {
+        const errorItem = document.createElement('p');
+        errorItem.className = 'error-message';
+        errorItem.textContent = message;
+        errorContainer.appendChild(errorItem);
+    });
+    const form = document.querySelector('form');
+    form.insertBefore(errorContainer, form.firstChild);
+}
+
+// Listen for validation errors
+function setupValidationErrorListener() {
+    document.addEventListener('validation-error', handleValidationErrors);
+}
+
 // Initialize all UI components
 function initManageUI() {
     setupRemoveLinkListeners();
     setupConfirmDialog();
     setupNotifications();
     setupFormHelpers();
+    setupValidationErrorListener();
     
     // Clear form errors when forms are reset or submitted successfully
     document.getElementById('add-channel-form').addEventListener('reset', clearFormErrors);

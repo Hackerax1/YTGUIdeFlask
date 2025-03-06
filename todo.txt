@@ -1,15 +1,15 @@
 **Priority 1: Core Improvements & Refinement**
 
 *   [X] **Caching:** Implement basic caching to reduce API calls and improve responsiveness.
-*   [ ] **Refactor Time Slot Logic:** Simplify the time slot logic in app.py for better maintainability.
+*   [X] **Refactor Time Slot Logic:** Simplify the time slot logic in app.py for better maintainability.
 *   [X] **API Key Handling:** Improve the security of API key storage and access.
-*   [ ] **Form Validation (Manage Channels):** Implement client-side validation on the manage channels page.
+*   [X] **Form Validation (Manage Channels):** Implement client-side validation on the manage channels page.
 *   [ ] **CSS Classes for States:** Replace inline styles with CSS classes in `index.html`.
 
 **Priority 2: Advanced Features & Polish**
 
 *   [ ] **Pagination:** Implement pagination for large API responses.
-*   [ ] **Retry Mechanism:** Add a retry mechanism for failed API requests.
+*   [X] **Retry Mechanism:** Add a retry mechanism for failed API requests.
 *   [X] **Optimize API Calls:** Batch API requests where possible.
 *   [ ] **Refactor Keyboard Navigation:** Refactor keyboard navigation logic in `index.js`.
 *   [ ] **Accessibility:** Improve accessibility across the application.
@@ -21,7 +21,7 @@
 *   [ ] **Integration Tests:** Write integration tests.
 *   [ ] **UI Tests:** Write UI tests.
 *   [ ] **Code Comments:** Add more code comments.
-*   [ ] **README:** Update the README file.
-*   [ ] **Configuration:** Move configuration options to a file or environment variables.
+*   [X] **README:** Update the README file.
+*   [X] **Configuration:** Move configuration options to a file or environment variables.
 *   [ ] **Data Validation:** Add validation for data loaded from `data.json`.
 *   [ ] **Time Zone Handling:** Ensure proper time zone handling.
