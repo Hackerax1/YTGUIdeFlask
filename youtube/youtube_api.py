@@ -1,14 +1,18 @@
 import os
 import random
 from datetime import datetime, timedelta
-import googleapiclient.discovery
-from dotenv import load_dotenv
 import re
 import json
 import requests
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, Callable, TypeVar
 import logging
 import time
+
+from youtube_client import youtube
+from api_cache import APICache
+from retry_decorator import retry_on_error
+from youtube_utils import parse_iso_duration_to_minutes, format_duration
+from dotenv import load_dotenv
 
 # Configure logging
 logging.basicConfig(
@@ -17,6 +21,12 @@ logging.basicConfig(
     filename='youtube_api.log'
 )
 logger = logging.getLogger('youtube_api')
+
+# Type variable for generic return type
+T = TypeVar('T')
+
+# Initialize cache with reasonable defaults
+api_cache = APICache(max_size=100, ttl=1800)
 
 # Load environment variables
 load_dotenv()
@@ -27,20 +37,6 @@ API_KEY = os.getenv('VITE_YT_API_KEY')
 if not API_KEY:
     logger.error("YouTube API key not found. Make sure you have a .env file with VITE_YT_API_KEY set.")
     raise ValueError("YouTube API key not found. Make sure you have a .env file with VITE_YT_API_KEY set.")
-
-# Initialize YouTube API client with explicit API key authentication
-try:
-    youtube = googleapiclient.discovery.build(
-        'youtube', 
-        'v3', 
-        developerKey=API_KEY,
-        # Skip authentication if possible
-        static_discovery=False
-    )
-    logger.info("YouTube API client initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize YouTube API client: {e}")
-    raise
 
 def get_channel_id_from_url(channel_url: str) -> Optional[str]:
     """Extract channel ID from various forms of YouTube channel URLs.
@@ -60,6 +56,12 @@ def get_channel_id_from_url(channel_url: str) -> Optional[str]:
     if not channel_url:
         logger.warning("Empty channel URL provided")
         return None
+    
+    # Check cache first    
+    cache_key = f"channel_id:{channel_url}"
+    cached_result = api_cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
         
     try:
         # Direct channel ID format: youtube.com/channel/CHANNEL_ID
@@ -67,6 +69,7 @@ def get_channel_id_from_url(channel_url: str) -> Optional[str]:
         if channel_match:
             channel_id = channel_match.group(1)
             logger.info(f"Extracted channel ID directly: {channel_id}")
+            api_cache.set(cache_key, channel_id)
             return channel_id
         
         # Handle custom URL format: youtube.com/c/CUSTOM_URL
@@ -74,21 +77,30 @@ def get_channel_id_from_url(channel_url: str) -> Optional[str]:
         if custom_match:
             custom_url = custom_match.group(1)
             logger.info(f"Extracted custom URL: {custom_url}, searching for channel ID")
-            return get_channel_id_by_search(custom_url)
+            channel_id = get_channel_id_by_search(custom_url)
+            if channel_id:
+                api_cache.set(cache_key, channel_id)
+            return channel_id
                 
         # Handle username format: youtube.com/user/USERNAME
         user_match = re.search(r'youtube\.com/user/([^/?&]+)', channel_url)
         if user_match:
             username = user_match.group(1)
             logger.info(f"Extracted username: {username}, searching for channel ID")
-            return get_channel_id_by_username(username)
+            channel_id = get_channel_id_by_username(username)
+            if channel_id:
+                api_cache.set(cache_key, channel_id)
+            return channel_id
                 
         # Handle handle format: youtube.com/@handle
         handle_match = re.search(r'youtube\.com/@([^/?&]+)', channel_url)
         if handle_match:
             handle = handle_match.group(1)
             logger.info(f"Extracted handle: {handle}, searching for channel ID")
-            return get_channel_id_by_search(handle)
+            channel_id = get_channel_id_by_search(handle)
+            if channel_id:
+                api_cache.set(cache_key, channel_id)
+            return channel_id
                 
         logger.warning(f"Unsupported YouTube URL format: {channel_url}")
         return None
@@ -96,7 +108,8 @@ def get_channel_id_from_url(channel_url: str) -> Optional[str]:
     except Exception as e:
         logger.error(f"Error extracting channel ID from URL: {e}")
         return None
-        
+
+@retry_on_error(max_retries=3, base_delay=2)
 def get_channel_id_by_search(query: str) -> Optional[str]:
     """Get channel ID by searching for the channel name or custom URL.
     
@@ -106,6 +119,12 @@ def get_channel_id_by_search(query: str) -> Optional[str]:
     Returns:
         The channel ID or None if not found
     """
+    # Check cache first
+    cache_key = f"search:{query}"
+    cached_result = api_cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+        
     try:
         search_response = youtube.search().list(
             q=query,
@@ -117,14 +136,18 @@ def get_channel_id_by_search(query: str) -> Optional[str]:
         if search_response.get('items'):
             channel_id = search_response['items'][0]['id']['channelId']
             logger.info(f"Found channel ID via search: {channel_id}")
+            api_cache.set(cache_key, channel_id)
             return channel_id
             
         logger.warning(f"No channel found for search query: {query}")
+        api_cache.set(cache_key, None)  # Cache negative results too
         return None
     except Exception as e:
         logger.error(f"Search API error for query '{query}': {e}")
-        return None
+        # Let the retry decorator handle retries
+        raise
 
+@retry_on_error()
 def get_channel_id_by_username(username: str) -> Optional[str]:
     """Get channel ID from a YouTube username.
     
@@ -134,6 +157,12 @@ def get_channel_id_by_username(username: str) -> Optional[str]:
     Returns:
         The channel ID or None if not found
     """
+    # Check cache first
+    cache_key = f"username:{username}"
+    cached_result = api_cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+        
     try:
         channels_response = youtube.channels().list(
             forUsername=username,
@@ -143,14 +172,18 @@ def get_channel_id_by_username(username: str) -> Optional[str]:
         if channels_response.get('items'):
             channel_id = channels_response['items'][0]['id']
             logger.info(f"Found channel ID for username {username}: {channel_id}")
+            api_cache.set(cache_key, channel_id)
             return channel_id
             
         logger.warning(f"No channel found for username: {username}")
+        api_cache.set(cache_key, None)  # Cache negative results too
         return None
     except Exception as e:
         logger.error(f"Username lookup error for '{username}': {e}")
-        return None
+        # Let the retry decorator handle retries
+        raise
 
+@retry_on_error()
 def get_video_details(video_id: str) -> Optional[Dict[str, Any]]:
     """Get detailed information about a video including description.
     
@@ -160,6 +193,12 @@ def get_video_details(video_id: str) -> Optional[Dict[str, Any]]:
     Returns:
         A dictionary with video details or None if not found
     """
+    # Check cache first
+    cache_key = f"video:{video_id}"
+    cached_result = api_cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+        
     try:
         video_response = youtube.videos().list(
             part='snippet,contentDetails',
@@ -168,6 +207,7 @@ def get_video_details(video_id: str) -> Optional[Dict[str, Any]]:
         
         if not video_response.get('items'):
             logger.warning(f"No details found for video ID: {video_id}")
+            api_cache.set(cache_key, None)
             return None
             
         video = video_response['items'][0]
@@ -189,64 +229,14 @@ def get_video_details(video_id: str) -> Optional[Dict[str, Any]]:
         }
         
         logger.info(f"Successfully retrieved details for video ID: {video_id}")
+        api_cache.set(cache_key, details)
         return details
     except Exception as e:
         logger.error(f"Error fetching video details for ID {video_id}: {e}")
-        return None
+        # Let the retry decorator handle retries
+        raise
 
-def parse_iso_duration_to_minutes(duration_str: str) -> int:
-    """Parse ISO 8601 duration format to minutes.
-    
-    Args:
-        duration_str: Duration string in ISO 8601 format (e.g., PT1H30M15S)
-        
-    Returns:
-        Duration in minutes
-    """
-    try:
-        hours = 0
-        minutes = 0
-        seconds = 0
-        
-        # Extract hours
-        hour_match = re.search(r'(\d+)H', duration_str)
-        if hour_match:
-            hours = int(hour_match.group(1))
-            
-        # Extract minutes
-        minute_match = re.search(r'(\d+)M', duration_str)
-        if minute_match:
-            minutes = int(minute_match.group(1))
-            
-        # Extract seconds
-        second_match = re.search(r'(\d+)S', duration_str)
-        if second_match:
-            seconds = int(second_match.group(1))
-            
-        # Convert to total minutes (rounding up if there are seconds)
-        total_minutes = hours * 60 + minutes + (1 if seconds > 0 else 0)
-        return max(1, total_minutes)  # Ensure at least 1 minute
-    except Exception as e:
-        logger.error(f"Error parsing duration '{duration_str}': {e}")
-        return 30  # Default to 30 minutes on error
-
-def format_duration(minutes: int) -> str:
-    """Format minutes into a human-readable duration string.
-    
-    Args:
-        minutes: Duration in minutes
-        
-    Returns:
-        Formatted duration string (e.g., "1h 30m" or "45m")
-    """
-    hours = minutes // 60
-    mins = minutes % 60
-    
-    if hours > 0:
-        return f"{hours}h {mins}m"
-    else:
-        return f"{mins}m"
-
+@retry_on_error(max_retries=3)
 def get_videos_for_channel(channel_url: str, display_option: str = 'random', max_results: int = 5) -> List[Dict[str, Any]]:
     """Get videos from a YouTube channel based on the display option.
     
@@ -258,6 +248,12 @@ def get_videos_for_channel(channel_url: str, display_option: str = 'random', max
     Returns:
         A list of video objects with title, thumbnail, description, and link.
     """
+    # Add cache key for this specific query
+    cache_key = f"videos:{channel_url}:{display_option}:{max_results}"
+    cached_result = api_cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+        
     channel_id = get_channel_id_from_url(channel_url)
     if not channel_id:
         logger.warning(f"Could not extract channel ID from URL: {channel_url}")
@@ -272,6 +268,7 @@ def get_videos_for_channel(channel_url: str, display_option: str = 'random', max
         
         if not channels_response['items']:
             logger.warning(f"No channel found with ID: {channel_id}")
+            api_cache.set(cache_key, [])
             return []
             
         uploads_list_id = channels_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
@@ -353,11 +350,47 @@ def get_videos_for_channel(channel_url: str, display_option: str = 'random', max
                 })
             
         logger.info(f"Successfully retrieved {len(results)} videos for channel {channel_id}")
+        
+        # Cache the results
+        api_cache.set(cache_key, results)
         return results
         
     except Exception as e:
         logger.error(f"Error fetching videos for channel {channel_url}: {e}")
-        return []
+        # Let the retry decorator handle retries
+        raise
+
+def batch_get_videos(channel_urls: List[str], display_option: str, max_results: int) -> List[Dict[str, Any]]:
+    """Batch process multiple channel URLs to get videos.
+    
+    Args:
+        channel_urls: List of YouTube channel URLs
+        display_option: Display option for sorting videos
+        max_results: Maximum results per channel
+        
+    Returns:
+        Combined list of videos from all channels
+    """
+    all_videos = []
+    
+    for url in channel_urls:
+        try:
+            videos = get_videos_for_channel(url, display_option, max_results)
+            all_videos.extend(videos)
+        except Exception as e:
+            logger.error(f"Error getting videos for channel URL {url}: {e}")
+            # Continue with other URLs even if one fails
+            continue
+            
+    # Apply sorting based on display option to the combined results
+    if display_option == 'popular' and all_videos:
+        all_videos = sorted(all_videos, key=lambda x: int(x.get('viewCount', 0)), reverse=True)
+    elif display_option == 'new' and all_videos:
+        all_videos = sorted(all_videos, key=lambda x: x['publishedAt'], reverse=True)
+    elif display_option == 'random' and all_videos:
+        random.shuffle(all_videos)
+        
+    return all_videos[:max_results]
 
 def get_videos_for_channels(channels_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Get videos for multiple channels based on their display options.
@@ -371,46 +404,29 @@ def get_videos_for_channels(channels_data: List[Dict[str, Any]]) -> List[Dict[st
     result = []
     
     for channel in channels_data:
-        channel_videos = []
-        retry_count = 0
-        max_retries = 2
-        
-        # Try to get videos with retries
-        while retry_count <= max_retries and not channel_videos:
-            try:
-                for link in channel['youtubeLinks']:
-                    videos = get_videos_for_channel(link, channel['displayOption'], max_results=2)
-                    channel_videos.extend(videos)
-                
-                if not channel_videos and retry_count < max_retries:
-                    logger.warning(f"No videos found for channel {channel.get('name')}, retrying...")
-                    retry_count += 1
-                    time.sleep(1)  # Short delay before retry
-                else:
-                    break
-            except Exception as e:
-                logger.error(f"Error getting videos for channel {channel.get('name')}: {e}")
-                if retry_count < max_retries:
-                    retry_count += 1
-                    time.sleep(1)  # Short delay before retry
-                else:
-                    break
+        try:
+            # Use the batch processing function to get videos for all links in this channel
+            channel_videos = batch_get_videos(
+                channel_urls=channel['youtubeLinks'],
+                display_option=channel['displayOption'],
+                max_results=5  # Limit to 5 videos per channel
+            )
             
-        # Re-sort or re-shuffle combined videos from multiple channels
-        if channel_videos:
-            if channel['displayOption'] == 'popular':
-                channel_videos = sorted(channel_videos, key=lambda x: int(x.get('viewCount', 0)), reverse=True)
-            elif channel['displayOption'] == 'new':
-                channel_videos = sorted(channel_videos, key=lambda x: x['publishedAt'], reverse=True)
-            elif channel['displayOption'] == 'random':
-                random.shuffle(channel_videos)
-                
-        channel_copy = channel.copy()
-        channel_copy['videos'] = channel_videos[:5]  # Limit to 5 videos per channel
-        result.append(channel_copy)
-        
+            # Create a copy of the channel data and add videos
+            channel_copy = channel.copy()
+            channel_copy['videos'] = channel_videos
+            result.append(channel_copy)
+            
+        except Exception as e:
+            logger.error(f"Error processing channel {channel.get('name')}: {e}")
+            # Add the channel without videos to avoid breaking the UI
+            channel_copy = channel.copy()
+            channel_copy['videos'] = []
+            result.append(channel_copy)
+    
     return result
 
+@retry_on_error(max_retries=2)
 def get_channel_videos(channel_id: str, max_results: int = 24) -> List[Dict[str, Any]]:
     """
     Get videos for a channel, distributed across 24-hour slots.
@@ -423,6 +439,12 @@ def get_channel_videos(channel_id: str, max_results: int = 24) -> List[Dict[str,
     Returns:
         List of video data dictionaries
     """
+    # Add cache key for this specific request
+    cache_key = f"channel_videos:{channel_id}:{max_results}"
+    cached_result = api_cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    
     base_url = "https://www.googleapis.com/youtube/v3/search"
     params = {
         'key': API_KEY,
@@ -462,11 +484,16 @@ def get_channel_videos(channel_id: str, max_results: int = 24) -> List[Dict[str,
             videos.append(None)
 
         logger.info(f"Successfully retrieved {len(videos)} videos for channel {channel_id}")
+        
+        # Cache the results
+        api_cache.set(cache_key, videos)
         return videos
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Request error fetching videos for channel {channel_id}: {str(e)}")
-        return []
+        # Let the retry decorator handle retries
+        raise
     except Exception as e:
         logger.error(f"Unexpected error fetching videos for channel {channel_id}: {str(e)}")
-        return []
+        # Let the retry decorator handle retries
+        raise

@@ -1,35 +1,21 @@
-**Priority 1: Essential Functionality & User Experience**
+**Priority 1: Core Improvements & Refinement**
 
-*   [X] **Consistent Player Window:** (As you identified) This is crucial for the TV guide feel.
-*   [X] **Video Description:** (As you identified) Adding descriptions significantly improves the user experience.
-*   [X] **Keyboard Shortcuts:** (As you identified) Key for navigation and usability.
-*   [X] **Error Handling:** Implement basic error handling in youtube_api.py to prevent crashes and display informative messages.
-*   [X] **Loading Indicators:** Add basic loading indicators to provide feedback during API calls.
-
-**Priority 2: Core Improvements & Refinement**
-
-*   [ ] **Caching:** Implement basic caching to reduce API calls and improve responsiveness.
+*   [X] **Caching:** Implement basic caching to reduce API calls and improve responsiveness.
 *   [ ] **Refactor Time Slot Logic:** Simplify the time slot logic in app.py for better maintainability.
-*   [ ] **API Key Handling:** Improve the security of API key storage and access.
+*   [X] **API Key Handling:** Improve the security of API key storage and access.
 *   [ ] **Form Validation (Manage Channels):** Implement client-side validation on the manage channels page.
 *   [ ] **CSS Classes for States:** Replace inline styles with CSS classes in `index.html`.
 
-**Priority 3: Advanced Features & Polish**
+**Priority 2: Advanced Features & Polish**
 
 *   [ ] **Pagination:** Implement pagination for large API responses.
 *   [ ] **Retry Mechanism:** Add a retry mechanism for failed API requests.
-*   [X] **Video Duration:** Fetch and include video duration in video objects.
-*   [ ] **Optimize API Calls:** Batch API requests where possible.
-*   [X] **Dynamic Time Markers:** Dynamically generate time markers in `index.html`.
+*   [X] **Optimize API Calls:** Batch API requests where possible.
 *   [ ] **Refactor Keyboard Navigation:** Refactor keyboard navigation logic in `index.js`.
-*   [X] **Store Theme Preference:** Store the user's theme preference in local storage.
-*   [X] **Error Messages (Manage Channels):** Display user-friendly error messages on the manage channels page.
-*   [X] **Confirmation Dialogs (Manage Channels):** Use confirmation dialogs before deleting channels.
 *   [ ] **Accessibility:** Improve accessibility across the application.
-*   [X] **Responsive Design:** Ensure the application is responsive.
 *   [ ] **CSS Variables:** Use CSS variables for styling.
 
-**Priority 4: Testing & Documentation**
+**Priority 3: Testing & Documentation**
 
 *   [ ] **Unit Tests:** Write unit tests for core functions.
 *   [ ] **Integration Tests:** Write integration tests.
@@ -39,4 +25,3 @@
 *   [ ] **Configuration:** Move configuration options to a file or environment variables.
 *   [ ] **Data Validation:** Add validation for data loaded from `data.json`.
 *   [ ] **Time Zone Handling:** Ensure proper time zone handling.
-

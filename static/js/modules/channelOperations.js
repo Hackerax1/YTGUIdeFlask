@@ -3,11 +3,30 @@
  * Handles loading, adding, editing, and deleting channels
  */
 
+// API Key handling
+const API_KEY = localStorage.getItem('api_key') || '';
+
+// Helper function for API requests with auth header
+function apiRequest(url, options = {}) {
+    const headers = {
+        ...(options.headers || {}),
+        'X-API-Key': API_KEY
+    };
+
+    return fetch(url, {
+        ...options,
+        headers
+    });
+}
+
 // Load all channels from API
 function loadChannels() {
-    return fetch('/api/channels')
+    return apiRequest('/api/channels')
         .then(response => {
             if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Unauthorized: API key is missing or invalid');
+                }
                 throw new Error('Failed to load channels');
             }
             return response.json();
@@ -76,11 +95,14 @@ function deleteChannel(channelId) {
             message: 'Are you sure you want to delete this channel?',
             confirmHandler: (confirmedChannelId) => {
                 // This function is called when the user confirms the deletion
-                fetch(`/api/channels/${confirmedChannelId}`, {
+                apiRequest(`/api/channels/${confirmedChannelId}`, {
                     method: 'DELETE'
                 })
                 .then(response => {
                     if (!response.ok) {
+                        if (response.status === 401) {
+                            throw new Error('Unauthorized: API key is missing or invalid');
+                        }
                         throw new Error('Failed to delete channel');
                     }
                     return response.json();
@@ -183,7 +205,7 @@ function addChannel(formData) {
         return Promise.reject(new Error('Validation failed'));
     }
     
-    return fetch('/api/channels', {
+    return apiRequest('/api/channels', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -192,6 +214,9 @@ function addChannel(formData) {
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Unauthorized: API key is missing or invalid');
+            }
             if (response.status === 400) {
                 return response.json().then(data => {
                     throw new Error(data.error || 'Invalid channel data');
@@ -227,7 +252,7 @@ function updateChannel(channelId, formData) {
         return Promise.reject(new Error('Validation failed'));
     }
     
-    return fetch(`/api/channels/${channelId}`, {
+    return apiRequest(`/api/channels/${channelId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -236,6 +261,9 @@ function updateChannel(channelId, formData) {
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Unauthorized: API key is missing or invalid');
+            }
             if (response.status === 400) {
                 return response.json().then(data => {
                     throw new Error(data.error || 'Invalid channel data');
@@ -262,11 +290,23 @@ function updateChannel(channelId, formData) {
     });
 }
 
+// Set API key in local storage
+function setApiKey(key) {
+    localStorage.setItem('api_key', key);
+}
+
+// Get API key from local storage
+function getApiKey() {
+    return localStorage.getItem('api_key') || '';
+}
+
 export { 
     loadChannels, 
     deleteChannel, 
     editChannel, 
     addChannel,
     updateChannel,
-    validateChannelData
+    validateChannelData,
+    setApiKey,
+    getApiKey
 };

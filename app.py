@@ -2,9 +2,15 @@ from flask import Flask, render_template, jsonify, request
 import json
 import os
 from datetime import datetime, timedelta
-from youtube_api import get_videos_for_channels, get_channel_videos, get_channel_id_from_url
+import secrets
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+from youtube.youtube_api import get_videos_for_channels, get_channel_videos, get_channel_id_from_url
 
 app = Flask(__name__)
+
+# Add a secret key for session management
+app.secret_key = os.getenv('FLASK_SECRET_KEY', secrets.token_hex(16))
 
 # Load data from JSON file
 def load_data():
@@ -24,6 +30,27 @@ def is_current_time_slot(video_index, total_videos):
     video_end_time = (video_index + 1) * minutes_per_slot
     
     return video_start_time <= minutes_since_midnight < video_end_time
+
+# Simple API key protection for API endpoints
+def require_api_key(view_function):
+    @wraps(view_function)
+    def decorated_function(*args, **kwargs):
+        # For local development, skip API key check if env variable is set
+        if os.getenv('SKIP_API_KEY_CHECK', '').lower() == 'true':
+            return view_function(*args, **kwargs)
+            
+        # Get API key from request
+        api_key = request.headers.get('X-API-Key')
+        if not api_key:
+            return jsonify({"error": "API key is required"}), 401
+            
+        # Check if API key is valid (stored in environment variable)
+        valid_api_key = os.getenv('API_ACCESS_KEY')
+        if not valid_api_key or api_key != valid_api_key:
+            return jsonify({"error": "Invalid API key"}), 401
+            
+        return view_function(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index():
@@ -66,12 +93,15 @@ def index():
 def manage():
     return render_template('manage.html')
 
+# Protected API routes
 @app.route('/api/channels')
+@require_api_key
 def api_channels():
     data = load_data()
     return jsonify(data)
 
 @app.route('/api/channels/<channel_id>')
+@require_api_key
 def api_channel(channel_id):
     data = load_data()
     for channel in data:
@@ -80,6 +110,7 @@ def api_channel(channel_id):
     return jsonify({"error": "Channel not found"}), 404
 
 @app.route('/api/channels', methods=['POST'])
+@require_api_key
 def add_channel():
     data = load_data()
     new_channel = request.json
@@ -99,6 +130,7 @@ def add_channel():
     return jsonify(new_channel), 201
 
 @app.route('/api/channels/<channel_id>', methods=['PUT'])
+@require_api_key
 def update_channel(channel_id):
     data = load_data()
     updated_channel = request.json
@@ -114,6 +146,7 @@ def update_channel(channel_id):
     return jsonify({"error": "Channel not found"}), 404
 
 @app.route('/api/channels/<channel_id>', methods=['DELETE'])
+@require_api_key
 def delete_channel(channel_id):
     data = load_data()
     
