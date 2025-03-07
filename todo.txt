@@ -5,15 +5,16 @@
 
 **Priority 2: Advanced Features & Polish**
 
-*   [ ] **Pagination:** Implement pagination for large API responses.
-*   [ ] **Refactor Keyboard Navigation:** Refactor keyboard navigation logic in `index.js`.
+*   [X] **Pagination:** Implement pagination for large API responses.
+*   [X] **Refactor Keyboard Navigation:** Refactor keyboard navigation logic in `index.js`.
 *   [X] **Accessibility:** Improve accessibility across the application.
 *   [X] **CSS Variables:** Use CSS variables for styling.
 
 **Priority 3: Testing & Documentation**
 
-*   [ ] **Unit Tests:** Write unit tests for core functions.
-*   [ ] **Integration Tests:** Write integration tests.
-*   [ ] **UI Tests:** Write UI tests.
-*   [ ] **Code Comments:** Add more code comments.
+*   [X] **Unit Tests:** Write unit tests for core functions.
+*   [X] **Integration Tests:** Write integration tests.
+*   [X] **UI Tests:** Write UI tests.
+*   [X] **Code Comments:** Add more code comments.
 *   [X] **README:** Update the README file.
+

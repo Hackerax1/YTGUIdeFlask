@@ -1,12 +1,22 @@
 /**
  * Channel Operations module
- * Handles loading, adding, editing, and deleting channels
+ * Handles loading, adding, editing, and deleting channels through the API
+ * 
+ * This module contains all the functions needed to interact with the backend API
+ * for managing YouTube channels in the application. It handles authentication,
+ * form validation, error handling, and success notifications.
  */
 
-// API Key handling
+// API Key handling - retrieved from local storage for persistent authentication
 const API_KEY = localStorage.getItem('api_key') || '';
 
-// Helper function for API requests with auth header
+/**
+ * Helper function for making authenticated API requests
+ * 
+ * @param {string} url - The API endpoint URL
+ * @param {Object} options - Fetch options like method, headers, body
+ * @returns {Promise} - The fetch promise
+ */
 function apiRequest(url, options = {}) {
     const headers = {
         ...(options.headers || {}),
@@ -19,9 +29,15 @@ function apiRequest(url, options = {}) {
     });
 }
 
-// Load all channels from API
-function loadChannels() {
-    return apiRequest('/api/channels')
+/**
+ * Loads channels from the API with pagination support
+ * 
+ * @param {number} page - The page number to load (1-based)
+ * @param {number} pageSize - Number of items per page
+ * @returns {Promise<Array>} - Promise resolving to the channels array
+ */
+function loadChannels(page = 1, pageSize = 10) {
+    return apiRequest(`/api/channels?page=${page}&pageSize=${pageSize}`)
         .then(response => {
             if (!response.ok) {
                 if (response.status === 401) {
@@ -31,10 +47,12 @@ function loadChannels() {
             }
             return response.json();
         })
-        .then(channels => {
+        .then(data => {
+            const { channels, totalPages } = data;
             const tbody = document.getElementById('channels-tbody');
             tbody.innerHTML = '';
             
+            // Create table rows for each channel
             channels.forEach(channel => {
                 const tr = document.createElement('tr');
                 
@@ -74,6 +92,22 @@ function loadChannels() {
                 tbody.appendChild(tr);
             });
             
+            // Add pagination controls if totalPages is provided
+            const paginationControls = document.getElementById('pagination-controls');
+            if (paginationControls) {
+                paginationControls.innerHTML = '';
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    pageBtn.onclick = () => loadChannels(i, pageSize);
+                    // Highlight the current page
+                    if (i === page) {
+                        pageBtn.classList.add('current-page');
+                    }
+                    paginationControls.appendChild(pageBtn);
+                }
+            }
+            
             return channels;
         })
         .catch(error => {
@@ -85,9 +119,13 @@ function loadChannels() {
         });
 }
 
-// Delete a channel with custom confirmation dialog
+/**
+ * Deletes a channel after confirmation
+ * 
+ * @param {string} channelId - The ID of the channel to delete
+ */
 function deleteChannel(channelId) {
-    // Dispatch event to show confirmation dialog 
+    // Dispatch event to show confirmation dialog with a callback
     document.dispatchEvent(new CustomEvent('show-confirm-dialog', { 
         detail: { 
             channelId: channelId,
@@ -108,7 +146,7 @@ function deleteChannel(channelId) {
                     return response.json();
                 })
                 .then(() => {
-                    loadChannels();
+                    loadChannels(); // Reload the channels list
                     document.dispatchEvent(new CustomEvent('operation-success', { 
                         detail: { message: 'Channel deleted successfully!' } 
                     }));
@@ -124,7 +162,11 @@ function deleteChannel(channelId) {
     }));
 }
 
-// Open the edit form for a channel
+/**
+ * Opens the edit form and populates it with channel data
+ * 
+ * @param {Object} channel - The channel object to edit
+ */
 function editChannel(channel) {
     document.getElementById('edit-channel-id').value = channel.id;
     document.getElementById('edit-channel-name').value = channel.name;
@@ -134,6 +176,7 @@ function editChannel(channel) {
     const editLinksDiv = document.getElementById('edit-youtube-links');
     editLinksDiv.innerHTML = '';
     
+    // Populate YouTube links in edit form
     channel.youtubeLinks.forEach(link => {
         const linkContainer = document.createElement('div');
         linkContainer.className = 'link-container';
@@ -149,6 +192,7 @@ function editChannel(channel) {
         removeBtn.className = 'remove-link-btn';
         removeBtn.textContent = '✕';
         removeBtn.onclick = function() {
+            // Prevent removing the last link
             if (editLinksDiv.children.length > 1) {
                 editLinksDiv.removeChild(linkContainer);
             }
@@ -159,11 +203,17 @@ function editChannel(channel) {
         editLinksDiv.appendChild(linkContainer);
     });
     
+    // Show the edit section and scroll to it
     document.getElementById('edit-section').style.display = 'block';
     document.getElementById('edit-section').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Validate channel form data
+/**
+ * Validates channel data before submission
+ * 
+ * @param {Object} formData - Channel data to validate
+ * @returns {Array} - Array of validation error messages, empty if valid
+ */
 function validateChannelData(formData) {
     const errors = [];
     
@@ -194,7 +244,12 @@ function validateChannelData(formData) {
     return errors;
 }
 
-// Add a new channel
+/**
+ * Adds a new channel to the application
+ * 
+ * @param {Object} formData - The channel data to add
+ * @returns {Promise} - Promise that resolves when the channel is added
+ */
 function addChannel(formData) {
     // Validate form data first
     const validationErrors = validateChannelData(formData);
@@ -241,7 +296,13 @@ function addChannel(formData) {
     });
 }
 
-// Update an existing channel
+/**
+ * Updates an existing channel
+ * 
+ * @param {string} channelId - The ID of the channel to update
+ * @param {Object} formData - Updated channel data
+ * @returns {Promise} - Promise that resolves when the channel is updated
+ */
 function updateChannel(channelId, formData) {
     // Validate form data first
     const validationErrors = validateChannelData(formData);
@@ -290,12 +351,20 @@ function updateChannel(channelId, formData) {
     });
 }
 
-// Set API key in local storage
+/**
+ * Set API key in local storage for persistent authentication
+ * 
+ * @param {string} key - API key to store
+ */
 function setApiKey(key) {
     localStorage.setItem('api_key', key);
 }
 
-// Get API key from local storage
+/**
+ * Get the stored API key from local storage
+ * 
+ * @returns {string} - The stored API key or empty string
+ */
 function getApiKey() {
     return localStorage.getItem('api_key') || '';
 }

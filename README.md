@@ -1,4 +1,4 @@
-# YouTube TV Guide Flask Application
+# TubeGuide Flask Application
 
 This application creates a nostalgic 2000s-style TV guide interface for browsing YouTube channels and their videos. It allows you to organize YouTube channels into "stations" and displays videos based on your preferred sorting method.
 
