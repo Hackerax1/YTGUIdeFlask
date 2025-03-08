@@ -18,3 +18,10 @@
 *   [X] **Code Comments:** Add more code comments.
 *   [X] **README:** Update the README file.
 
+**Priority 4: New Features & Enhancements**
+
+*   [X] **Move Title:** Move title to the left corner and add a display window to the right corner like in the DirecTV menu.
+*   [X] **Align Headers and Video Grids:** Align headers and video grids better.
+*   [X] **Theme Buttons:** Move theme buttons to the bottom and make them functional.
+*   [X] **CSS Cleanup:** Clean up CSS files to cut down or reuse components.
+*   [X] **Modularization:** Further break down large files for modularization and ease of upkeep/development.

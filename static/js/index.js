@@ -10,15 +10,14 @@
 // Import required functionality from modules
 import { switchTheme, loadSavedTheme } from './modules/theme.js';
 import { playVideo, closeVideoModal, openInYouTube, initVideoPlayer } from './modules/videoPlayer.js';
-import { initNavigation, getCurrentProgram, focusProgram } from './modules/navigation.js';
-import { hidePageLoader, initTimeDisplay } from './modules/utilities.js';
+import { initNavigation, getCurrentProgram, focusProgram, updateInfoDisplay } from './modules/navigation.js';
+import { hidePageLoader, initUtilities } from './modules/utilities.js';
 
 /**
  * Make certain functions available in the global scope
  * This allows HTML elements to call these functions directly via attributes
  * like onclick="playVideo(...)"
  */
-window.switchTheme = switchTheme;
 window.playVideo = playVideo;
 window.closeVideoModal = closeVideoModal;
 window.openInYouTube = openInYouTube;
@@ -34,10 +33,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load saved theme preference from localStorage
     loadSavedTheme();
     
+    // Setup theme switcher buttons
+    document.querySelectorAll('.theme-switcher button').forEach(button => {
+        button.addEventListener('click', function() {
+            switchTheme(this.getAttribute('data-theme'));
+        });
+    });
+    
     // Initialize all application components
     initNavigation();    // Set up keyboard navigation and focus management
     initVideoPlayer();   // Set up video player modal and events
-    initTimeDisplay();   // Set up time display and program widths
+    initUtilities();     // Set up time display, program widths and other utilities
     
     // Connect navigation module's escape key events to the video modal close function
     document.addEventListener('escapePressed', closeVideoModal);
@@ -52,3 +58,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // This can happen in some browsers or if images fail to load
     setTimeout(hidePageLoader, 3000);
 });
+
+// Keep time information updated
+function updateCurrentTime() {
+    const dateTimeElement = document.querySelector('.current-date-time');
+    if (dateTimeElement) {
+        const now = new Date();
+        const options = { weekday: 'short', hour: '2-digit', minute: '2-digit' };
+        dateTimeElement.textContent = now.toLocaleString('en-US', options);
+    }
+}
+
+// Update time every minute
+setInterval(updateCurrentTime, 60000);
+// Initial update
+document.addEventListener('DOMContentLoaded', updateCurrentTime);

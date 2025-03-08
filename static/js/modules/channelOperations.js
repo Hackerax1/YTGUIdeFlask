@@ -7,6 +7,9 @@
  * form validation, error handling, and success notifications.
  */
 
+// Import the dialog manager for confirmation dialogs
+import { showConfirmDialog } from './dialogManager.js';
+
 // API Key handling - retrieved from local storage for persistent authentication
 const API_KEY = localStorage.getItem('api_key') || '';
 
@@ -125,41 +128,39 @@ function loadChannels(page = 1, pageSize = 10) {
  * @param {string} channelId - The ID of the channel to delete
  */
 function deleteChannel(channelId) {
-    // Dispatch event to show confirmation dialog with a callback
-    document.dispatchEvent(new CustomEvent('show-confirm-dialog', { 
-        detail: { 
-            channelId: channelId,
-            title: 'Confirm Deletion',
-            message: 'Are you sure you want to delete this channel?',
-            confirmHandler: (confirmedChannelId) => {
-                // This function is called when the user confirms the deletion
-                apiRequest(`/api/channels/${confirmedChannelId}`, {
-                    method: 'DELETE'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            throw new Error('Unauthorized: API key is missing or invalid');
-                        }
-                        throw new Error('Failed to delete channel');
+    // Use the showConfirmDialog function from dialogManager
+    showConfirmDialog(
+        'Confirm Deletion',
+        'Are you sure you want to delete this channel?',
+        channelId,
+        (confirmedChannelId) => {
+            // This function is called when the user confirms the deletion
+            apiRequest(`/api/channels/${confirmedChannelId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Unauthorized: API key is missing or invalid');
                     }
-                    return response.json();
-                })
-                .then(() => {
-                    loadChannels(); // Reload the channels list
-                    document.dispatchEvent(new CustomEvent('operation-success', { 
-                        detail: { message: 'Channel deleted successfully!' } 
-                    }));
-                })
-                .catch(error => {
-                    console.error('Error deleting channel:', error);
-                    document.dispatchEvent(new CustomEvent('operation-error', { 
-                        detail: { message: 'Failed to delete channel. ' + error.message } 
-                    }));
-                });
-            }
-        } 
-    }));
+                    throw new Error('Failed to delete channel');
+                }
+                return response.json();
+            })
+            .then(() => {
+                loadChannels(); // Reload the channels list
+                document.dispatchEvent(new CustomEvent('operation-success', { 
+                    detail: { message: 'Channel deleted successfully!' } 
+                }));
+            })
+            .catch(error => {
+                console.error('Error deleting channel:', error);
+                document.dispatchEvent(new CustomEvent('operation-error', { 
+                    detail: { message: 'Failed to delete channel. ' + error.message } 
+                }));
+            });
+        }
+    );
 }
 
 /**
@@ -329,8 +330,6 @@ function updateChannel(channelId, formData) {
                 return response.json().then(data => {
                     throw new Error(data.error || 'Invalid channel data');
                 });
-            } else if (response.status === 404) {
-                throw new Error('Channel not found');
             }
             throw new Error(`Server error (${response.status})`);
         }

@@ -18,6 +18,21 @@ function getCurrentProgram() {
     return programs[currentPosition.col] || null;
 }
 
+// Update the info display with the current program details
+function updateInfoDisplay(program) {
+    const infoDisplay = document.getElementById('currentProgramInfo');
+    if (!infoDisplay) return;
+    
+    if (program) {
+        const title = program.dataset.videoTitle;
+        const isAvailable = program.classList.contains('current');
+        const statusText = isAvailable ? 'Available Now' : 'Not Available';
+        infoDisplay.textContent = `${title} (${statusText})`;
+    } else {
+        infoDisplay.textContent = 'Select a program for details';
+    }
+}
+
 // Focus the program at the current position
 function focusProgram() {
     // Remove previous focus
@@ -29,6 +44,7 @@ function focusProgram() {
     if (program) {
         program.classList.add('nav-focus');
         program.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        updateInfoDisplay(program);
     }
 }
 
@@ -56,6 +72,13 @@ function setupKeyboardNavigation() {
                 document.body.classList.add('keyboard-mode');
             }
         }, 3000);
+    });
+
+    // Setup mouse hover for info display updates
+    document.querySelectorAll('.program').forEach(program => {
+        program.addEventListener('mouseenter', function() {
+            updateInfoDisplay(this);
+        });
     });
 
     // Keyboard navigation
@@ -148,4 +171,4 @@ function initNavigation() {
     focusProgram(); // Set initial focus
 }
 
-export { initNavigation, getCurrentProgram, focusProgram };
+export { initNavigation, getCurrentProgram, focusProgram, updateInfoDisplay };

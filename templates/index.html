@@ -8,6 +8,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>TubeGuide</title>
     <link rel="stylesheet" href="/static/css/theme-variables.css">
+    <link rel="stylesheet" href="/static/css/base.css">
     <link rel="stylesheet" href="/static/css/theme1.css" id="themeStylesheet">
     <link rel="stylesheet" href="/static/css/modal.css">
 </head>
@@ -19,12 +20,14 @@
     </div>
 
     <div class="container">
-        <h1>TubeGuide</h1>
-        <nav class="theme-switcher" aria-label="Theme selection">
-            <button data-theme="/static/css/theme1.css">Classic Guide</button>
-            <button data-theme="/static/css/theme2.css">Night Mode</button>
-            <button data-theme="/static/css/theme3.css">Retro Guide</button>
-        </nav>
+        <!-- Header area with title and info display -->
+        <div class="header-area">
+            <h1>TubeGuide</h1>
+            <div class="info-display" aria-live="polite">
+                <div class="current-date-time">{{ current_time }}</div>
+                <div class="current-program-info" id="currentProgramInfo">Select a program for details</div>
+            </div>
+        </div>
         
         <div class="time-bar" role="timer" aria-label="Current time and timeline">
             <div class="current-time" aria-live="polite">{{ current_time }}</div>
@@ -83,6 +86,11 @@
         <div class="guide-footer">
             <div class="footer-buttons">
                 <a href="/manage" class="button" role="button">Manage Channels</a>
+            </div>
+            <div class="theme-switcher" aria-label="Theme selection">
+                <button data-theme="/static/css/theme1.css">Classic Guide</button>
+                <button data-theme="/static/css/theme2.css">Night Mode</button>
+                <button data-theme="/static/css/theme3.css">Retro Guide</button>
             </div>
             <div class="footer-info" role="contentinfo">
                 Use arrow keys to navigate • Enter to play current programs • Esc to close video
